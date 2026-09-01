@@ -1,45 +1,45 @@
 # Upselling Product
 
-Monorepo with a Next.js frontend and a FastAPI + PostgreSQL backend.
+All-in-one AI business intelligence agent for an e-commerce store: **Inventory, Marketing, Operations and Finance** in a single dashboard with a domain-bounded chatbot.
 
 ## Structure
 
 ```
 .
 ├── frontend/          # Next.js (TypeScript, App Router, Tailwind CSS)
-├── backend/           # FastAPI (Python, SQLAlchemy async, PostgreSQL)
-│   ├── app/
-│   │   ├── main.py            # FastAPI entrypoint
-│   │   ├── core/config.py     # Settings (env-driven)
-│   │   ├── db/                # Engine, session, ORM base
-│   │   ├── api/v1/            # Versioned API routes
-│   │   ├── models/            # SQLAlchemy models
-│   │   ├── schemas/           # Pydantic schemas
-│   │   └── services/          # Business logic
-│   ├── requirements.txt
-│   └── .env.example
-└── docker-compose.yml # PostgreSQL 16
+│   └── src/
+│       ├── app/page.tsx                    # Single dashboard page
+│       ├── components/dashboard/           # KPI cards, chat panel, analysis accordions
+│       └── lib/api.ts                      # Typed API client
+└── backend/           # FastAPI (Python, SQLAlchemy async, SQLite)
+    ├── app/
+    │   ├── main.py                # Entrypoint; creates tables + seeds demo data on startup
+    │   ├── core/config.py         # Env-driven settings
+    │   ├── db/                    # SQLite models, session, seed data
+    │   ├── agent/                 # LangChain agent (DeepSeek): prompts, tools, executor
+    │   ├── services/insights.py   # Domain analytics shared by API + agent tools
+    │   └── api/v1/                # /dashboard/summary, /analysis/{domain}, /chat, /health
+    ├── requirements.txt
+    └── .env.example
 ```
 
-## Getting started
+## The agent
 
-### Database
+A single LangChain tool-calling agent (DeepSeek `deepseek-chat`) with four tools — inventory, marketing, operations, finance data. Its system prompt strictly bounds it to those domains: any off-topic question is refused with a fixed message. Chat history is persisted in SQLite per session.
 
-```bash
-docker compose up -d db
-```
+## Getting started (no Docker)
 
 ### Backend
 
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --reload --port 8000
+uv venv .venv && uv pip install -r requirements.txt --python .venv/bin/python
+cp .env.example .env   # fill in DEEPSEEK_API_KEY (+ Shopify creds)
+.venv/bin/uvicorn app.main:app --reload --port 8000
 ```
 
-API docs: http://localhost:8000/docs — health check: `GET /api/v1/health`
+The SQLite database (`upselling.db`) is created and seeded with demo data automatically on first start.
+API docs: http://localhost:8000/docs
 
 ### Frontend
 
@@ -49,4 +49,4 @@ npm install
 npm run dev
 ```
 
-App: http://localhost:3000
+Dashboard: http://localhost:3000
