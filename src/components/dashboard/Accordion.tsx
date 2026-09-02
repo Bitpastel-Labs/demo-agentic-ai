@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { OPEN_ANALYSIS_EVENT } from "@/lib/analysisNav";
 
 interface AccordionProps {
   title: string;
@@ -12,15 +13,35 @@ interface AccordionProps {
 
 export default function Accordion({ title, color, id, children, onFirstOpen }: AccordionProps) {
   const [open, setOpen] = useState(false);
-  const [opened, setOpened] = useState(false);
+  const openedRef = useRef(false);
+  const firstOpenRef = useRef(onFirstOpen);
+  useEffect(() => {
+    firstOpenRef.current = onFirstOpen;
+  }, [onFirstOpen]);
 
-  const toggle = () => {
-    if (!opened) {
-      setOpened(true);
-      onFirstOpen?.();
+  const openNow = () => {
+    if (!openedRef.current) {
+      openedRef.current = true;
+      firstOpenRef.current?.();
     }
-    setOpen((o) => !o);
+    setOpen(true);
   };
+
+  const toggle = () => (open ? setOpen(false) : openNow());
+
+  useEffect(() => {
+    if (!id) return;
+    const onOpenRequest = (e: Event) => {
+      if ((e as CustomEvent<string>).detail !== id) return;
+      if (!openedRef.current) {
+        openedRef.current = true;
+        firstOpenRef.current?.();
+      }
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_ANALYSIS_EVENT, onOpenRequest);
+    return () => window.removeEventListener(OPEN_ANALYSIS_EVENT, onOpenRequest);
+  }, [id]);
 
   return (
     <div
@@ -43,7 +64,19 @@ export default function Accordion({ title, color, id, children, onFirstOpen }: A
           <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {open && <div className="border-t border-line px-5 py-4">{children}</div>}
+      {/* Height animates via grid rows (0fr -> 1fr); content stays mounted so lazy-loaded data is kept. */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div
+            inert={!open}
+            className={`border-t border-line px-5 py-4 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+          >
+            {children}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

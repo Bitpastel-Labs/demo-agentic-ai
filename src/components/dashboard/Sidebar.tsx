@@ -1,6 +1,10 @@
 "use client";
 
 import { DOMAINS } from "@/lib/domains";
+import { openAnalysis } from "@/lib/analysisNav";
+
+const linkClass =
+  "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-sidebar-text transition hover:bg-white/5 hover:text-white";
 
 export default function Sidebar() {
   return (
@@ -20,11 +24,14 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-0.5 px-3 py-4">
-        <a
-          href="#overview"
-          className="block rounded-md px-3 py-2 text-sm font-medium text-white transition hover:bg-white/5"
-        >
+        <a href="#overview" className="block rounded-md px-3 py-2 text-sm font-medium text-white transition hover:bg-white/5">
           Overview
+        </a>
+        <a href="#health-scoreboard" className={linkClass}>
+          Business health
+        </a>
+        <a href="#priority-actions" className={linkClass}>
+          Priority actions
         </a>
         <p className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-sidebar-text/70">
           Analysis
@@ -33,7 +40,8 @@ export default function Sidebar() {
           <a
             key={d.key}
             href={`#${d.key}-analysis`}
-            className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-sidebar-text transition hover:bg-white/5 hover:text-white"
+            onClick={() => openAnalysis(`${d.key}-analysis`)}
+            className={linkClass}
           >
             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: d.color }} aria-hidden />
             {d.label}
@@ -45,7 +53,7 @@ export default function Sidebar() {
         <p className="text-[11px] text-sidebar-text">
           One agent. Four domains.
           <br />
-          Nothing else.
+          Live from your Shopify store.
         </p>
       </div>
     </aside>
