@@ -1,3 +1,5 @@
+"""Tools for the admin agent: read-only views over the store's own analytics."""
+
 import json
 
 from langchain_core.tools import tool
@@ -34,4 +36,4 @@ async def get_finance_data() -> str:
         return json.dumps(await insights.finance_summary(db))
 
 
-AGENT_TOOLS = [get_inventory_data, get_marketing_data, get_operations_data, get_finance_data]
+ADMIN_TOOLS = [get_inventory_data, get_marketing_data, get_operations_data, get_finance_data]

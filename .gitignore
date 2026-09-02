@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# The Python packaging rules above (lib/, build/, dist/) are repo-wide and would
+# otherwise swallow the Next.js app source, which has its own src/lib.
+!frontend/src/lib/
