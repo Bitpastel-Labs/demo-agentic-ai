@@ -49,7 +49,6 @@ ORDERS_QUERY = """
         cancelledAt
         displayFulfillmentStatus
         totalPriceSet { shopMoney { amount } }
-        customer { displayName }
       }
     }
   }
@@ -135,8 +134,8 @@ async def sync_shopify(db: AsyncSession) -> dict:
             row = Order(order_number=number)
             db.add(row)
             existing_orders[number] = row
-        customer = o.get("customer") or {}
-        row.customer_name = customer.get("displayName") or "Guest"
+        # customer details need the read_customers scope, which this app doesn't request
+        row.customer_name = row.customer_name or "—"
         row.total = float(o["totalPriceSet"]["shopMoney"]["amount"])
         row.status = _order_status(o)
         order_count += 1

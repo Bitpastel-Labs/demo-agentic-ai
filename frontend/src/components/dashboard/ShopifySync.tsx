@@ -31,20 +31,24 @@ export default function ShopifySync({ onSynced }: { onSynced: () => void }) {
   const storeName = status.store_url?.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
   return (
-    <div className="flex items-center gap-3">
-      {message && <span className="text-xs text-slate-400">{message}</span>}
+    <div className="flex flex-wrap items-center gap-3">
+      {message && <span className="text-xs text-ink-soft">{message}</span>}
       <span
-        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          status.configured ? "bg-emerald-500/15 text-emerald-400" : "bg-slate-500/15 text-slate-400"
+        className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+          status.configured ? "bg-good-soft text-good" : "bg-ground text-ink-soft"
         }`}
       >
-        {status.configured ? `Shopify: ${storeName}` : "Shopify not connected"}
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${status.configured ? "bg-good" : "bg-ink-faint"}`}
+          aria-hidden
+        />
+        {status.configured ? storeName : "Shopify not connected"}
       </span>
       {status.configured && (
         <button
           onClick={handleSync}
           disabled={syncing}
-          className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-amber-500 hover:text-amber-400 disabled:opacity-40"
+          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-40"
         >
           {syncing ? "Syncing…" : "Sync store data"}
         </button>

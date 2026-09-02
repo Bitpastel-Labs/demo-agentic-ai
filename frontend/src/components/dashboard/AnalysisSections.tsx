@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Accordion from "./Accordion";
+import { domainColor } from "@/lib/domains";
 import {
   getAnalysis,
   type FinanceAnalysis,
@@ -14,10 +15,10 @@ const money = (n: number) => `$${n.toLocaleString(undefined, { maximumFractionDi
 
 const badge = (text: string, tone: "green" | "amber" | "red" | "slate") => {
   const tones = {
-    green: "bg-emerald-500/15 text-emerald-400",
-    amber: "bg-amber-500/15 text-amber-400",
-    red: "bg-red-500/15 text-red-400",
-    slate: "bg-slate-500/15 text-slate-400",
+    green: "bg-good-soft text-good",
+    amber: "bg-warn-soft text-warn",
+    red: "bg-bad-soft text-bad",
+    slate: "bg-ground text-ink-soft",
   };
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tones[tone]}`}>{text}</span>;
 };
@@ -34,27 +35,30 @@ function useLazyLoad<T>(domain: "inventory" | "marketing" | "operations" | "fina
 }
 
 function LoadingOrError({ error }: { error: boolean }) {
-  return <p className="text-sm text-slate-500">{error ? "Failed to load details." : "Loading…"}</p>;
+  return (
+    <p className="text-sm text-ink-soft">{error ? "Details couldn't be loaded. Reopen to retry." : "Loading…"}</p>
+  );
 }
 
-const th = "px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-400";
-const td = "px-3 py-2 text-sm text-slate-300";
+const th = "px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-faint";
+const td = "px-3 py-2 text-sm text-ink";
+const tdNum = `${td} tabular`;
 
 function InventoryDetails() {
   const { data, error, load } = useLazyLoad<InventoryAnalysis>("inventory");
   return (
-    <Accordion title="Inventory Analysis" onFirstOpen={load}>
+    <Accordion title="Inventory Analysis" color={domainColor.inventory} id="inventory-analysis" onFirstOpen={load}>
       {!data ? (
         <LoadingOrError error={error} />
       ) : (
         <div className="overflow-x-auto">
-          <p className="mb-3 text-sm text-slate-400">
+          <p className="mb-3 text-sm text-ink-soft">
             {data.total_skus} SKUs · {data.total_units.toLocaleString()} units · stock value {money(data.stock_value)} ·{" "}
             {data.low_stock_count} low-stock item(s)
           </p>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-slate-800">
+              <tr className="border-b border-line">
                 <th className={th}>SKU</th>
                 <th className={th}>Product</th>
                 <th className={th}>Category</th>
@@ -66,14 +70,14 @@ function InventoryDetails() {
             </thead>
             <tbody>
               {data.products.map((p) => (
-                <tr key={p.sku} className="border-b border-slate-800/50">
-                  <td className={td}>{p.sku}</td>
+                <tr key={p.sku} className="border-b border-line/60 last:border-0">
+                  <td className={tdNum}>{p.sku}</td>
                   <td className={td}>{p.name}</td>
                   <td className={td}>{p.category}</td>
-                  <td className={td}>{money(p.price)}</td>
-                  <td className={td}>{p.stock_qty}</td>
-                  <td className={td}>{p.reorder_level}</td>
-                  <td className={td}>{p.low_stock ? badge("Low stock", "red") : badge("OK", "green")}</td>
+                  <td className={tdNum}>{money(p.price)}</td>
+                  <td className={tdNum}>{p.stock_qty}</td>
+                  <td className={tdNum}>{p.reorder_level}</td>
+                  <td className={td}>{p.low_stock ? badge("Low stock", "red") : badge("In stock", "green")}</td>
                 </tr>
               ))}
             </tbody>
@@ -87,18 +91,18 @@ function InventoryDetails() {
 function MarketingDetails() {
   const { data, error, load } = useLazyLoad<MarketingAnalysis>("marketing");
   return (
-    <Accordion title="Marketing Analysis" onFirstOpen={load}>
+    <Accordion title="Marketing Analysis" color={domainColor.marketing} id="marketing-analysis" onFirstOpen={load}>
       {!data ? (
         <LoadingOrError error={error} />
       ) : (
         <div className="overflow-x-auto">
-          <p className="mb-3 text-sm text-slate-400">
+          <p className="mb-3 text-sm text-ink-soft">
             {data.active_campaigns}/{data.total_campaigns} campaigns active · spend {money(data.total_spend)} · revenue{" "}
             {money(data.total_revenue)} · ROAS {data.roas}x · CTR {data.ctr_pct}%
           </p>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-slate-800">
+              <tr className="border-b border-line">
                 <th className={th}>Campaign</th>
                 <th className={th}>Platform</th>
                 <th className={th}>Status</th>
@@ -111,17 +115,17 @@ function MarketingDetails() {
             </thead>
             <tbody>
               {data.campaigns.map((c) => (
-                <tr key={c.name} className="border-b border-slate-800/50">
+                <tr key={c.name} className="border-b border-line/60 last:border-0">
                   <td className={td}>{c.name}</td>
                   <td className={td}>{c.platform}</td>
                   <td className={td}>{c.status === "active" ? badge("Active", "green") : badge(c.status, "slate")}</td>
-                  <td className={td}>
+                  <td className={tdNum}>
                     {money(c.spend)} / {money(c.budget)}
                   </td>
-                  <td className={td}>{c.clicks.toLocaleString()}</td>
-                  <td className={td}>{c.conversions}</td>
-                  <td className={td}>{money(c.revenue)}</td>
-                  <td className={td}>{c.roas}x</td>
+                  <td className={tdNum}>{c.clicks.toLocaleString()}</td>
+                  <td className={tdNum}>{c.conversions}</td>
+                  <td className={tdNum}>{money(c.revenue)}</td>
+                  <td className={tdNum}>{c.roas}x</td>
                 </tr>
               ))}
             </tbody>
@@ -135,21 +139,21 @@ function MarketingDetails() {
 function OperationsDetails() {
   const { data, error, load } = useLazyLoad<OperationsAnalysis>("operations");
   return (
-    <Accordion title="Operations Analysis" onFirstOpen={load}>
+    <Accordion title="Operations Analysis" color={domainColor.operations} id="operations-analysis" onFirstOpen={load}>
       {!data ? (
         <LoadingOrError error={error} />
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="overflow-x-auto">
-            <h3 className="mb-2 text-sm font-semibold text-slate-300">
-              Recent Orders{" "}
-              <span className="font-normal text-slate-500">
-                ({data.pending_orders} awaiting fulfillment of {data.total_orders})
+            <h3 className="mb-2 text-sm font-semibold text-ink">
+              Recent orders{" "}
+              <span className="font-normal text-ink-soft">
+                ({data.pending_orders} of {data.total_orders} awaiting fulfillment)
               </span>
             </h3>
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-slate-800">
+                <tr className="border-b border-line">
                   <th className={th}>Order</th>
                   <th className={th}>Customer</th>
                   <th className={th}>Total</th>
@@ -158,10 +162,10 @@ function OperationsDetails() {
               </thead>
               <tbody>
                 {data.recent_orders.map((o) => (
-                  <tr key={o.order_number} className="border-b border-slate-800/50">
-                    <td className={td}>{o.order_number}</td>
+                  <tr key={o.order_number} className="border-b border-line/60 last:border-0">
+                    <td className={tdNum}>{o.order_number}</td>
                     <td className={td}>{o.customer_name}</td>
-                    <td className={td}>{money(o.total)}</td>
+                    <td className={tdNum}>{money(o.total)}</td>
                     <td className={td}>
                       {o.status === "fulfilled"
                         ? badge("Fulfilled", "green")
@@ -175,12 +179,12 @@ function OperationsDetails() {
             </table>
           </div>
           <div className="overflow-x-auto">
-            <h3 className="mb-2 text-sm font-semibold text-slate-300">
-              Tasks <span className="font-normal text-slate-500">({data.open_tasks} open)</span>
+            <h3 className="mb-2 text-sm font-semibold text-ink">
+              Tasks <span className="font-normal text-ink-soft">({data.open_tasks} open)</span>
             </h3>
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-slate-800">
+                <tr className="border-b border-line">
                   <th className={th}>Task</th>
                   <th className={th}>Priority</th>
                   <th className={th}>Status</th>
@@ -189,7 +193,7 @@ function OperationsDetails() {
               </thead>
               <tbody>
                 {data.tasks.map((t) => (
-                  <tr key={t.title} className="border-b border-slate-800/50">
+                  <tr key={t.title} className="border-b border-line/60 last:border-0">
                     <td className={td}>{t.title}</td>
                     <td className={td}>
                       {t.priority === "high"
@@ -199,7 +203,7 @@ function OperationsDetails() {
                           : badge("Low", "slate")}
                     </td>
                     <td className={td}>{t.status.replace("_", " ")}</td>
-                    <td className={td}>{t.due_date ?? "—"}</td>
+                    <td className={tdNum}>{t.due_date ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -214,46 +218,46 @@ function OperationsDetails() {
 function FinanceDetails() {
   const { data, error, load } = useLazyLoad<FinanceAnalysis>("finance");
   return (
-    <Accordion title="Finance Analysis" onFirstOpen={load}>
+    <Accordion title="Finance Analysis" color={domainColor.finance} id="finance-analysis" onFirstOpen={load}>
       {!data ? (
         <LoadingOrError error={error} />
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-sm font-semibold text-slate-300">Summary</h3>
-            <ul className="space-y-1 text-sm text-slate-300">
+            <h3 className="mb-2 text-sm font-semibold text-ink">Summary</h3>
+            <ul className="space-y-1.5 text-sm text-ink">
               <li>
-                Revenue: <span className="text-slate-100">{money(data.total_revenue)}</span>{" "}
-                <span className="text-slate-500">
+                Revenue: <span className="tabular font-medium">{money(data.total_revenue)}</span>{" "}
+                <span className="text-ink-soft">
                   (orders {money(data.order_revenue)} + campaigns {money(data.campaign_revenue)})
                 </span>
               </li>
               <li>
-                Expenses: <span className="text-slate-100">{money(data.total_expenses)}</span>
+                Expenses: <span className="tabular font-medium">{money(data.total_expenses)}</span>
               </li>
               <li>
                 Net profit:{" "}
-                <span className={data.net_profit >= 0 ? "text-emerald-400" : "text-red-400"}>
+                <span className={`tabular font-medium ${data.net_profit >= 0 ? "text-good" : "text-bad"}`}>
                   {money(data.net_profit)}
                 </span>{" "}
-                <span className="text-slate-500">({data.profit_margin_pct}% margin)</span>
+                <span className="text-ink-soft">({data.profit_margin_pct}% margin)</span>
               </li>
             </ul>
-            <h3 className="mb-2 mt-4 text-sm font-semibold text-slate-300">Expenses by Category</h3>
-            <ul className="space-y-1 text-sm text-slate-300">
+            <h3 className="mb-2 mt-5 text-sm font-semibold text-ink">Expenses by category</h3>
+            <ul className="text-sm text-ink">
               {Object.entries(data.expenses_by_category).map(([cat, amt]) => (
-                <li key={cat} className="flex justify-between border-b border-slate-800/50 py-1">
+                <li key={cat} className="flex justify-between border-b border-line/60 py-1.5 last:border-0">
                   <span>{cat}</span>
-                  <span>{money(amt)}</span>
+                  <span className="tabular">{money(amt)}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="overflow-x-auto">
-            <h3 className="mb-2 text-sm font-semibold text-slate-300">Recent Expenses</h3>
+            <h3 className="mb-2 text-sm font-semibold text-ink">Recent expenses</h3>
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-slate-800">
+                <tr className="border-b border-line">
                   <th className={th}>Date</th>
                   <th className={th}>Category</th>
                   <th className={th}>Description</th>
@@ -262,11 +266,11 @@ function FinanceDetails() {
               </thead>
               <tbody>
                 {data.expenses.map((e, i) => (
-                  <tr key={i} className="border-b border-slate-800/50">
-                    <td className={td}>{e.date}</td>
+                  <tr key={i} className="border-b border-line/60 last:border-0">
+                    <td className={tdNum}>{e.date}</td>
                     <td className={td}>{e.category}</td>
                     <td className={td}>{e.description}</td>
-                    <td className={td}>{money(e.amount)}</td>
+                    <td className={tdNum}>{money(e.amount)}</td>
                   </tr>
                 ))}
               </tbody>

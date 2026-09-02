@@ -6,18 +6,18 @@ interface KpiCardProps {
 }
 
 const accentClass = {
-  default: "text-slate-100",
-  good: "text-emerald-400",
-  warn: "text-amber-400",
-  bad: "text-red-400",
+  default: "text-ink",
+  good: "text-good",
+  warn: "text-warn",
+  bad: "text-bad",
 };
 
 export default function KpiCard({ label, value, sub, accent = "default" }: KpiCardProps) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className={`mt-1 text-2xl font-semibold ${accentClass[accent]}`}>{value}</p>
-      {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
+    <div className="rounded-lg border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint">{label}</p>
+      <p className={`tabular mt-1.5 text-[22px] font-semibold leading-tight ${accentClass[accent]}`}>{value}</p>
+      {sub && <p className="mt-1 text-xs text-ink-soft">{sub}</p>}
     </div>
   );
 }

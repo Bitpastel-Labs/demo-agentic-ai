@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     async with AsyncSessionLocal() as session:
-        await seed_if_empty(session)
+        await seed_if_empty(session, include_store_data=not shopify_sync.is_configured())
     if shopify_sync.is_configured():
         try:
             async with AsyncSessionLocal() as session:
